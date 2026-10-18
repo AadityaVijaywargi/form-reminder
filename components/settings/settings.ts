@@ -60,6 +60,8 @@ async function render() {
   includeAnswers.checked = settings.includeAnswers;
   notify.checked = settings.notify;
   relayInput.value = settings.relayUrl ?? '';
+  // No relay yet (dev build without WXT_RELAY_URL): open Advanced so the field is visible.
+  if (!relayUrlOf(settings)) (relayInput.closest('details') as HTMLDetailsElement).open = true;
   $<HTMLButtonElement>('test').disabled = !verifiedNow;
 
   const { queue = [], history = [], lastReceiptAt } = (await browser.storage.local.get([
@@ -81,7 +83,7 @@ function renderStatus(settings: Settings, verifiedNow: boolean, queue: Job[]) {
   let text: string;
   if (!relayUrlOf(settings)) {
     pill = '<span class="pill err">Not ready</span>';
-    text = 'No email relay configured. Add one under Advanced.';
+    text = 'No email relay set. Paste your Apps Script /exec URL under Advanced (bottom of this page).';
   } else if (!verifiedNow) {
     pill = '<span class="pill warn">One step left</span>';
     text = stuck
@@ -140,6 +142,20 @@ async function busy<T>(button: HTMLButtonElement, fn: () => Promise<T>): Promise
     button.disabled = false;
   }
 }
+
+// A relay URL pasted into the email box is almost certainly meant for Advanced: save it there.
+const RELAY_URL_RE = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec\/?$/;
+emailInput.addEventListener('input', async () => {
+  const value = emailInput.value.trim();
+  if (!RELAY_URL_RE.test(value)) return;
+  await updateSettings({ relayUrl: value });
+  emailInput.value = '';
+  emailError.textContent = '';
+  actionResult.textContent = '';
+  await render();
+  emailError.textContent = 'That was your relay URL. It\'s saved under Advanced. Now enter your email address.';
+  emailInput.focus();
+});
 
 emailForm.addEventListener('submit', async (e) => {
   e.preventDefault();
