@@ -24,7 +24,12 @@ export interface ProviderAdapter {
    * `urls` whose URL yields a form id. Leave undefined when the request is ambiguous
    * (Google POSTs /formResponse on every "Next").
    */
-  submitRequest?: { urls: string[]; formId(requestUrl: string): string | null };
+  submitRequest?: {
+    urls: string[];
+    formId(requestUrl: string): string | null;
+    /** Count only a redirect, not a 200: the submit URL can also serve an interim page (captcha). */
+    redirectOnly?: boolean;
+  };
 
   /** Form id from the page URL. Must equal submitRequest.formId for the same form. */
   formId(url: URL): string | null;

@@ -47,6 +47,8 @@ export const typeformScreen = `<!doctype html><html><head><title>Customer Satisf
 
 export const JOTFORM_URL = 'https://form.jotform.com/240421974148053';
 export const JOTFORM_SUBMIT_URL = 'https://submit.jotform.com/submit/240421974148053/';
+// Where the browser lands after solving Jotform's captcha check (live, Oct 2026).
+export const JOTFORM_AFTER_CAPTCHA_URL = 'https://submit.jotform.com/240421974148053';
 export const jotformForm = `<!doctype html><html><head><title>Simple Registration Form</title>
 <meta property="og:title" content="Simple Registration Form"></head><body>
 <form action="https://submit.jotform.com/submit/240421974148053" method="post"><ul>
@@ -58,12 +60,24 @@ export const jotformForm = `<!doctype html><html><head><title>Simple Registratio
     </div></div></li>
   <li class="form-line" data-type="control_email" id="id_4"><label class="form-label" id="label_4" for="input_4"> Email<span class="form-required">*</span> </label>
     <div class="form-input-wide"><span class="form-sub-label-container"><input type="email" id="input_4" name="q4_email" value=""><label class="form-sub-label" for="input_4">example@example.com</label></span></div></li>
-  <li class="form-line" data-type="control_radio" id="id_6"><label class="form-label" id="label_6"> Gender </label>
-    <div class="form-input-wide"><div role="radiogroup">
-      <span><input type="radio" id="input_6_0" name="q6_gender" value="Male"><label for="input_6_0">Male</label></span>
-      <span><input type="radio" id="input_6_1" name="q6_gender" value="Female"><label for="input_6_1">Female</label></span>
+  <li class="form-line" data-type="control_radio" id="id_6"><span class="form-label form-label-top" id="label_6"> Gender </span>
+    <div class="form-input-wide"><div class="form-single-column" role="radiogroup" aria-labelledby="label_6">
+      <span class="form-radio-item"><input type="radio" class="form-radio" id="input_6_0" name="q6_gender" value="Male"><label for="input_6_0">Male</label></span>
+      <span class="form-radio-item"><input type="radio" class="form-radio" id="input_6_1" name="q6_gender" value="Female"><label for="input_6_1">Female</label></span>
+    </div></div></li>
+  <li class="form-line" data-type="control_checkbox" id="id_7"><span class="form-label form-label-top" id="label_7"> Dietary needs </span>
+    <div class="form-input-wide"><div class="form-single-column" role="group" aria-labelledby="label_7">
+      <span class="form-checkbox-item"><input type="checkbox" class="form-checkbox" id="input_7_0" name="q7_diet[]" value="Vegan"><label for="input_7_0">Vegan</label></span>
+      <span class="form-checkbox-item"><input type="checkbox" class="form-checkbox" id="input_7_1" name="q7_diet[]" value="No nuts"><label for="input_7_1">No nuts</label></span>
     </div></div></li>
   <li class="form-line" data-type="control_button" id="id_2"><div class="form-input-wide"><button type="submit">Submit</button></div></li>
+</ul></form></body></html>`;
+// Live (Oct 2026): Jotform may answer the submit POST with an hCaptcha check on the same URL
+// before it accepts the response.
+export const jotformCaptcha = `<!doctype html><html><head><title>Please Complete</title></head><body>
+<form action="https://submit.jotform.com/submit/240421974148053" method="post"><ul>
+  <li class="form-line" data-type="control_captcha" id="id_1"><div class="form-input-wide"><div class="h-captcha"></div></div></li>
+  <li class="form-line" data-type="control_button" id="id_2"><div class="form-input-wide"><button type="submit">Submit Form</button></div></li>
 </ul></form></body></html>`;
 export const jotformThanks = `<!doctype html><html><head><title>Thank You</title></head><body>
 <div class="form-all"><div class="thankyou-wrapper"><h1>Thank You!</h1><p>Your submission has been received.</p></div></div></body></html>`;

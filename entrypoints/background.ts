@@ -59,15 +59,16 @@ function handle(msg: Message): Promise<unknown> | undefined {
 function watchSubmitRequests() {
   const webRequest = browser.webRequest;
   if (!webRequest || !submitRequestUrls.length) return;
-  const onRequest = (d: { url: string; method: string; statusCode: number }) => {
+  const onRequest = (redirect: boolean) => (d: { url: string; method: string; statusCode: number }) => {
     if (d.method !== 'POST' || d.statusCode >= 400) return;
     const match = matchSubmitRequest(d.url);
-    if (match) onSubmitted({ provider: match.provider.id, formId: match.formId, title: null, url: null, answers: [] });
+    if (!match || (!redirect && match.provider.submitRequest?.redirectOnly)) return;
+    onSubmitted({ provider: match.provider.id, formId: match.formId, title: null, url: null, answers: [] });
   };
   const filter = { urls: submitRequestUrls };
-  webRequest.onCompleted.addListener(onRequest, filter);
+  webRequest.onCompleted.addListener(onRequest(false), filter);
   // Jotform forms with a custom thank-you URL redirect away instead of completing.
-  webRequest.onBeforeRedirect.addListener(onRequest, filter);
+  webRequest.onBeforeRedirect.addListener(onRequest(true), filter);
 }
 
 // Draft writes and reads go through one chain so a late DRAFT can't race the submit.

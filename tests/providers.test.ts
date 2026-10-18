@@ -7,11 +7,13 @@ import { tally } from '@/providers/tally';
 import { typeform } from '@/providers/typeform';
 import { load } from './fixtures/google';
 import {
+  JOTFORM_AFTER_CAPTCHA_URL,
   JOTFORM_SUBMIT_URL,
   JOTFORM_URL,
   MS_URL,
   TALLY_URL,
   TYPEFORM_URL,
+  jotformCaptcha,
   jotformForm,
   jotformThanks,
   msForm,
@@ -136,10 +138,14 @@ describe('jotform', () => {
     doc.querySelector<HTMLInputElement>('#last_3')!.value = 'V';
     doc.querySelector<HTMLInputElement>('#input_4')!.value = 'aadi@example.com';
     doc.querySelector<HTMLInputElement>('#input_6_1')!.checked = true;
+    doc.querySelector<HTMLInputElement>('#input_7_0')!.checked = true;
+    doc.querySelector<HTMLInputElement>('#input_7_1')!.checked = true;
+    // Choice questions title themselves with span.form-label, not label.form-label.
     expect(answersOf(jotform.captureAnswers(doc))).toEqual({
       Name: 'Aadi V',
       Email: 'aadi@example.com',
       Gender: 'Female',
+      'Dietary needs': 'Vegan, No nuts',
     });
   });
 
@@ -148,7 +154,22 @@ describe('jotform', () => {
     expect(jotform.isConfirmation(load(jotformThanks), url(JOTFORM_SUBMIT_URL), FRESH)).toBe(true);
     // Server-side validation error re-renders the form on the submit URL.
     expect(jotform.isConfirmation(load(jotformForm), url(JOTFORM_SUBMIT_URL), FRESH)).toBe(false);
+    // The captcha check is served on the submit URL too, before the response is accepted.
+    expect(jotform.isConfirmation(load(jotformCaptcha), url(JOTFORM_SUBMIT_URL), FRESH)).toBe(false);
+    expect(jotform.captureAnswers(load(jotformCaptcha))).toEqual([]);
+    expect(jotform.isConfirmation(load(jotformThanks), url(JOTFORM_AFTER_CAPTCHA_URL), FRESH)).toBe(true);
+    expect(jotform.formId(url(JOTFORM_AFTER_CAPTCHA_URL))).toBe(jotform.formId(url(JOTFORM_URL)));
+    expect(jotform.formUrl(url(JOTFORM_AFTER_CAPTCHA_URL))).toBe(JOTFORM_URL);
+    // Jotform's own pages on that host are not a confirmation.
+    expect(jotform.isConfirmation(load(jotformThanks), url('https://submit.jotform.com/server.php'), FRESH)).toBe(false);
     expect(jotform.formUrl(url(JOTFORM_SUBMIT_URL))).toBe(JOTFORM_URL);
+  });
+});
+
+describe('submit request signal', () => {
+  it('counts only redirects for Jotform, whose submit URL also serves the captcha check', () => {
+    expect(jotform.submitRequest?.redirectOnly).toBe(true);
+    expect(providers.filter((p) => p.submitRequest?.redirectOnly).map((p) => p.id)).toEqual(['jotform']);
   });
 });
 

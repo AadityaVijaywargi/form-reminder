@@ -2,9 +2,13 @@ import { clean, cleanQuestion, readControls } from './read-controls';
 import type { Answer, ProviderAdapter } from './types';
 
 // Checked against a live classic Jotform (Oct 2026): <form action="https://submit.jotform.com/
-// submit/<id>" method="post">, one li.form-line[data-type] per field with label.form-label.
-// After submit the browser lands on submit.jotform.com/submit/<id>/ (the thank-you page) unless
-// the owner set a redirect, which the network signal still catches.
+// submit/<id>" method="post">, one li.form-line[data-type] per field, titled by .form-label
+// (a <label> for text fields, a <span> for radio and checkbox questions). After submit the
+// browser lands on submit.jotform.com/submit/<id>/ (the thank-you page) unless the owner set a
+// redirect, which the network signal still catches. Jotform may first answer that POST with an
+// hCaptcha check on the same URL, so only a redirect counts as a network submit. Solving it
+// posts to submit.jotform.com/server.php and lands on submit.jotform.com/<id> (no /submit/), which
+// only the DOM signal sees.
 const LINE = 'li.form-line';
 const SKIP_TYPES = new Set([
   'control_button',
@@ -31,6 +35,7 @@ export const jotform: ProviderAdapter = {
   submitRequest: {
     urls: ['https://submit.jotform.com/submit/*', 'https://eu-submit.jotform.com/submit/*'],
     formId: (url) => url.match(/\/submit\/(\d{10,})/)?.[1] ?? null,
+    redirectOnly: true,
   },
 
   formId: (url) => url.pathname.match(FORM_ID)?.[1] ?? null,
@@ -51,7 +56,8 @@ export const jotform: ProviderAdapter = {
   },
 
   isConfirmation(doc, url) {
-    const onSubmitPage = /(^|\.|-)submit\.jotform\.com$/.test(url.hostname) && /\/submit\/\d+/.test(url.pathname);
+    const onSubmitPage =
+      /(^|\.|-)submit\.jotform\.com$/.test(url.hostname) && /^\/(?:submit\/)?\d{10,}\/?$/.test(url.pathname);
     // A server-side validation error re-renders the form on the same URL.
     return onSubmitPage && !!doc.body?.childElementCount && !doc.querySelector(LINE);
   },
@@ -61,7 +67,7 @@ export const jotform: ProviderAdapter = {
     for (const line of doc.querySelectorAll<HTMLElement>(LINE)) {
       const type = line.dataset.type ?? '';
       if (SKIP_TYPES.has(type)) continue;
-      const question = cleanQuestion(line.querySelector('label.form-label')?.textContent);
+      const question = cleanQuestion(line.querySelector('.form-label')?.textContent);
       if (!question) continue;
       const input = line.querySelector('.form-input, .form-input-wide') ?? line;
       answers.push({ question, value: readControls(input, type === 'control_fullname' ? ' ' : ', ') });
