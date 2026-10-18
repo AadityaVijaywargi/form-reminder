@@ -1,0 +1,26 @@
+{
+  "name": "form-submit-receipt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Get an email receipt (form name, time and your answers) every time you submit an online form.",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "happy-dom": "^21.0.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5",
+    "wxt": "^0.21.4"
+  }
+}
