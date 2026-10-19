@@ -10,6 +10,21 @@ toolbar icon for a popup with setup, options and recent receipts.
 - **Email:** one Google Apps Script web app (`apps-script/`) that you own relays every user's
   receipts. Users verify their email once with a 6-digit code.
 
+## Install (no coding needed)
+
+1. Open the [latest release](https://github.com/AadityaVijaywargi/form-reminder/releases/latest)
+   and download the `...-chrome.zip` file under *Assets*.
+2. Unzip it into a folder you'll keep. The extension stops working if that folder is moved or
+   deleted.
+3. Open `chrome://extensions` (or `brave://extensions`, `edge://extensions`), turn on
+   **Developer mode** (top right), click **Load unpacked** and pick the unzipped folder.
+4. A welcome tab opens: enter your email, type the 6-digit code you receive, then click
+   **Send test email**.
+
+It doesn't update itself: to update, download the new zip, replace the folder's contents and
+click the reload icon on the extension's card. Chrome may warn about developer-mode extensions
+on start-up; that's expected for extensions installed this way.
+
 ## How it works
 
 ```
@@ -92,3 +107,7 @@ Forms selectors and the Tally/Typeform/Microsoft submit endpoints are unverified
 adapter). Before release, run through the test matrix in the
 plan: single-page, multi-section with Back, `forms.gle` link, reload of the confirmation page,
 embedded iframe, offline submit, a Hindi form, and every answer type.
+
+## License
+
+[MIT](LICENSE)
