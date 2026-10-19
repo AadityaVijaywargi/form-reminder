@@ -97,17 +97,6 @@ CacheService, MailApp and friends, covering verification, rate limits, quota, es
 See `store/listing.md` (descriptions, permission justifications, data disclosures, checklist) and
 `PRIVACY.md` (publish it, e.g. on GitHub Pages, and use its URL in each store).
 
-## Not verified yet
-
-Jotform was tested end to end on a live form (Oct 2026), including its hCaptcha check, which
-serves an interim page on the submit URL and lands on `submit.jotform.com/<id>` afterwards.
-Tally and Typeform markup was checked against live forms, but a Tally form can't be published
-without an account, so its submit flow is still untested. Google is fixture-based; the Microsoft
-Forms selectors and the Tally/Typeform/Microsoft submit endpoints are unverified (marked in each
-adapter). Before release, run through the test matrix in the
-plan: single-page, multi-section with Back, `forms.gle` link, reload of the confirmation page,
-embedded iframe, offline submit, a Hindi form, and every answer type.
-
 ## License
 
 [MIT](LICENSE)
